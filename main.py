@@ -4,41 +4,48 @@ from discord.ext import commands
 import discord.utils
 import asyncio
 from GoogleNews import GoogleNews
+class group:
+  def __init__(self,Topic,ticks,MOTD,Channel,loop):
+    self.Topic=Topic
+    self.ticks=ticks
+    self.MOTD=MOTD
+    self.Channel=Channel
+    self.loop=loop
 value=open("settings.txt")
 TOKEN=open("PUT_TOKEN_HERE.txt").read()
-Topic=value.readline()[:-1]
-ticks=value.readline()[:-1]
-MOTD=value.readline()[:-1]
-Channel=value.readline()
+group.Topic=value.readline().strip()
+group.Channel=value.readline().strip()
 value.close()
+group.loop=True
 googlenews=GoogleNews()
 client=commands.Bot(command_prefix="!")
 @client.event
 async def on_ready():
-    activity=discord.Game(name=MOTD,type=2)
+    activity=discord.Game(name="This just in!",type=2)
     await client.change_presence(status=discord.Status.online,activity=activity)
     print("On Ready!")
-    await news_loop(None)
+    await news_loop(None,group.Topic,group.Channel)
 
 # News loop
 
-async def news_loop(ctx):
+async def news_loop(ctx,subject,tab):
     check = ""
-    while True:
+    while group.loop:
         #Grabs news
-        googlenews.search(Topic)
-        link=googlenews.get_links()
-        if link[0]==check:
-            break
+        googlenews.clear()
+        googlenews.search(subject)
+        link=googlenews.get_links()[0]
+        if link==check:
+          await asyncio.sleep(2)
+          continue
         else:
-            check=link[0]
-            print(check)
+            check=link
             #Grabs channel
-            ctx=client.get_channel(int(Channel))
+            ctx=client.get_channel(int(tab))
             #Sends news
-            await ctx.send(link[0])
+            await ctx.send(link)
             #Wait
-            await asyncio.sleep(int(ticks))
+            await asyncio.sleep(2)
 
 #settings panel
 
@@ -49,31 +56,25 @@ async def settings(ctx):
     await ctx.send("Hello, and welcome to the setup wizard. To start, what topic do you want me to report?")
     reply1=await client.wait_for("message")
     op1=reply1.content
-    await ctx.send("Great, how many times a second do you want to get news updates?")
-    reply2=await client.wait_for("message")
-    op2=reply2.content
     await ctx.send("Great, right click the channel you want to post news, and click on \"Copy ID\". What is that number?")
     reply4=await client.wait_for("message")
     op4=reply4.content
-    await ctx.send("Last, What game do you want me to display that I'm playing?")
-    reply3=await client.wait_for("message")
-    op3=reply3.content
     #Write to file
-    save=str(op1+"\n"+op2+"\n"+op3+"\n"+op4)
+    save=str(op1+"\n"+op4)
+    group.loop=False
+    await asyncio.sleep(4)
     value=open("settings.txt", "w+")
     value.write(save)
+    group.Topic=value.readline().strip()
+    group.Channel=value.readline()
     value.close()
+    await asyncio.sleep(4)
+    group.loop=True
     #Print result
-    await ctx.send(f"Roger Doger! I will now get news about {op1} Every {op2} seconds! Please restart me to apply the changes!")
-
-def refresh():
-    value = open("settings.txt")
-    Topic=value.readline()[:-1]
-    ticks=value.readline()[:-1]
-    MOTD=value.readline()[:-1]
-    Channel=value.readline()
-    value.close()
-
+    await ctx.send(f"Roger Doger! I will now get news about {op1}! Please restart me to apply the changes!")
+    await asyncio.sleep(2)
+    googlenews.clear()
+    await news_loop(None,op1,op4)
 #Bot Token
 
 client.run(TOKEN)
