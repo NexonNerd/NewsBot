@@ -23,20 +23,27 @@ async def on_ready():
 # News loop
 
 async def news_loop(ctx):
+    check = ""
     while True:
         #Grabs news
         googlenews.search(Topic)
         link=googlenews.get_links()
-        #Grabs channel
-        ctx=client.get_channel(int(Channel))
-        #Sends news
-        await ctx.send(link[0])
-        #Wait
-        await asyncio.sleep(int(ticks))
+        if link[0]==check:
+            break
+        else:
+            check=link[0]
+            print(check)
+            #Grabs channel
+            ctx=client.get_channel(int(Channel))
+            #Sends news
+            await ctx.send(link[0])
+            #Wait
+            await asyncio.sleep(int(ticks))
 
 #settings panel
 
 @client.command()
+@commands.is_owner()
 async def settings(ctx):
     #Trivia
     await ctx.send("Hello, and welcome to the setup wizard. To start, what topic do you want me to report?")
@@ -57,7 +64,15 @@ async def settings(ctx):
     value.write(save)
     value.close()
     #Print result
-    await ctx.send(f"Roger Doger! You will now get news about {op1} Every {op2} seconds!")
+    await ctx.send(f"Roger Doger! I will now get news about {op1} Every {op2} seconds! Please restart me to apply the changes!")
+
+def refresh():
+    value = open("settings.txt")
+    Topic=value.readline()[:-1]
+    ticks=value.readline()[:-1]
+    MOTD=value.readline()[:-1]
+    Channel=value.readline()
+    value.close()
 
 #Bot Token
 
