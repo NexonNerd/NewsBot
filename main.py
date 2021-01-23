@@ -33,6 +33,7 @@ async def news_loop(ctx,subject,tab):
     while group.loop:
         #Grabs news
         googlenews.clear()
+        await asyncio.sleep(2)
         googlenews.search(subject)
         link=googlenews.get_links()[0]
         if link==check:
@@ -62,17 +63,15 @@ async def settings(ctx):
     #Write to file
     save=str(op1+"\n"+op4)
     group.loop=False
-    await asyncio.sleep(4)
+    await asyncio.sleep(8)
     value=open("settings.txt", "w+")
     value.write(save)
     group.Topic=value.readline().strip()
     group.Channel=value.readline()
     value.close()
-    await asyncio.sleep(4)
     group.loop=True
     #Print result
     await ctx.send(f"Roger Doger! I will now post news updates about {op1}!")
-    await asyncio.sleep(2)
     googlenews.clear()
     await news_loop(None,op1,op4)
 #Bot Token
