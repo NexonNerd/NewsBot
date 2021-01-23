@@ -71,7 +71,7 @@ async def settings(ctx):
     await asyncio.sleep(4)
     group.loop=True
     #Print result
-    await ctx.send(f"Roger Doger! I will now get news about {op1}!")
+    await ctx.send(f"Roger Doger! I will now post news updates about {op1}!")
     await asyncio.sleep(2)
     googlenews.clear()
     await news_loop(None,op1,op4)
