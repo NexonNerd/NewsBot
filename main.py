@@ -29,7 +29,8 @@ async def on_ready():
 # News loop
 
 async def news_loop(ctx,subject,tab):
-    check = ""
+    check=""
+    check2=""
     while group.loop:
         #Grabs news
         googlenews.clear()
@@ -39,7 +40,11 @@ async def news_loop(ctx,subject,tab):
         if link==check:
           await asyncio.sleep(2)
           continue
+        elif link==check2:
+            await asyncio.sleep(2)
+            continue
         else:
+            check2=check
             check=link
             #Grabs channel
             ctx=client.get_channel(int(tab))
